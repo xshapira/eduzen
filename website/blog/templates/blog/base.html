@@ -1,6 +1,9 @@
+{% load solo_tags %}
+
 <!DOCTYPE html>
 <html lang="es">
     <head>
+        {% get_solo 'config.SiteConfiguration' as site_config %}
         {% block head %}
         {% endblock %}
     </head>

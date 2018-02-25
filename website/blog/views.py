@@ -41,7 +41,8 @@ class ClasesView(TemplateView):
 
 class HomeListView(ListView):
     model = Post
-    queryset = Post.objects.filter(published_date__isnull=False)
+    queryset = Post.objects.prefetch_related('tags').filter(
+        published_date__isnull=False)
     context_object_name = 'posts'
     template_name = 'blog/body.html'
     ordering = ['-published_date', ]
@@ -50,7 +51,7 @@ class HomeListView(ListView):
     def get_context_data(self, **kwargs):
         context = super(HomeListView, self).get_context_data(**kwargs)
         tags = {}
-
+        # import pdb; pdb.set_trace()
         for post in self.queryset:
             for tag in post.tags.all():
                 if tag.slug not in tags.keys():
@@ -78,7 +79,8 @@ class PostListView(ListView):
 
 class PostTagsList(ListView):
     model = Post
-    queryset = Post.objects.filter(published_date__isnull=False)
+    queryset = Post.objects.prefetch_related('tags').filter(
+        published_date__isnull=False)
     context_object_name = 'posts'
     template_name = 'blog/post_list.html'
     ordering = ['-published_date', ]
@@ -122,25 +124,6 @@ def stuff(request):
     btc_data = defaultdict(str)
     if btc.status_code == requests.codes.ok:
         btc_data.update(btc.json()['coin'])
-
-    if not current_peso.exists():
-        # 'currency = 'Currency('ARS'")
-        # end_date = "currency.data_set.get('DateTimeUTC'")
-        # end_date = end_date.split(" ")
-        # end_date[-1] = end_date[-1][:4]
-        # end_date = " ".join(end_date)
-        # date = datetime.strptime(end_date[:-1], '%Y-%m-%d %H:%M:%S %Z')
-        data = {
-            'name': "currency.data_set.get('Name')",
-            'bid': "currency.data_set.get('Bid')",
-            'ask': "currency.data_set.get('Ask')",
-            'rate': "currency.data_set.get('Rate')",
-            'created_date': timezone.now(),
-        }
-        # current_peso = DolarPeso.objects.create(**data)
-    else:
-        pass
-        # current_peso = current_peso[0]
 
     data = {
         'tweet': 'tweets[0]',

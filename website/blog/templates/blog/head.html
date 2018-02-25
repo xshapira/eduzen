@@ -1,9 +1,7 @@
 {% extends 'blog/base.html' %}
 {% load staticfiles %}
-{% load solo_tags %}
 
 {% block head %}
-    {% get_solo 'config.SiteConfiguration' as site_config %}
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 
     <title>{{ site_config.tab_title }}</title>
