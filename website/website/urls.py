@@ -28,6 +28,7 @@ favicon_view = RedirectView.as_view(url='/static/config/img/favicon.ico', perman
 
 
 urlpatterns = [
+    url(r'^chat/', include('chat.urls')),
     url(r'^favicon\.ico$', favicon_view),
     url(r'^eduardo/', admin.site.urls),
     url(r'^ckeditor/', include('ckeditor_uploader.urls')),

@@ -66,11 +66,13 @@ INSTALLED_APPS = [
     'djmoney',
     'rest_framework',
     'django_extensions',
+    'channels',
 
     'config',
     'blog',
     'api',
     'expenses',
+    'chat',
 ]
 
 MIDDLEWARE = [
@@ -198,3 +200,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
     )
 }
+
+# Channels
+
+ASGI_APPLICATION = "website.routing.application"
