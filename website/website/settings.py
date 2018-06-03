@@ -202,5 +202,12 @@ REST_FRAMEWORK = {
 }
 
 # Channels
-
 ASGI_APPLICATION = "website.routing.application"
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('45.55.130.126', 6379)],
+        },
+    },
+}

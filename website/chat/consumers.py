@@ -1,64 +1,62 @@
 import json
-from channels.generic.websocket import WebsocketConsumer
 from channels.generic.websocket import AsyncConsumer
+from channels.generic.websocket import AsyncWebsocketConsumer
+
+from asgiref.sync import async_to_sync
 
 
-class ChatConsumer(WebsocketConsumer):
-    def connect(self):
-        self.username = "Anonymous"
-        self.accept()
-        self.send(text_data="[Welcome %s!]" % self.username)
+class ChatConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        self.room_name = self.scope['url_route']['kwargs']['room_name']
+        self.room_group_name = 'chat_%s' % self.room_name
 
-    def disconnect(self, close_code):
-        pass
+        # Join room group
+        await self.channel_layer.group_add(
+            self.room_group_name,
+            self.channel_name
+        )
 
-    def receive(self, text_data):
-        if text_data.startswith("/name"):
-            self.username = text_data[5:].strip()
-            self.send(text_data="[set your username to %s]" % self.username)
-        else:
-            msg = self.username + ": " + text_data
-            print(msg)
-            self.send(text_data=msg)
+        await self.accept()
 
+    async def disconnect(self, close_code):
+        # Leave room group
+        await self.channel_layer.group_discard(
+            self.room_group_name,
+            self.channel_name
+        )
+
+    # Receive message from WebSocket
+    async def receive(self, text_data):
         text_data_json = json.loads(text_data)
         message = text_data_json['message']
 
-        self.send(text_data=json.dumps({
+        # Send message to room group
+        await self.channel_layer.group_send(
+            self.room_group_name,
+            {
+                'type': 'chat_message',
+                'message': message
+            }
+        )
+
+    # Receive message from room group
+    async def chat_message(self, event):
+        message = event['message']
+
+        # Send message to WebSocket
+        await self.send(text_data=json.dumps({
             'message': message
         }))
 
-'''
-class ChattyBotConsumer(SyncConsumer):
+
+class TelegramBotConsumer(AsyncConsumer):
 
     def telegram_message(self, message):
         """
         Simple echo handler for telegram messages in any chat.
         """
+        print('aca')
         self.send({
             "type": "telegram.message",
             "text": "You said: %s" % message["text"],
-        })
-
-
-class LogConsumer(WebsocketConsumer):
-
-    def connect(self, message):
-        Log.objects.create(
-            type="connected",
-            client=self.scope["client"],
-        )
-
-'''
-class PingConsumer(AsyncConsumer):
-    async def websocket_connect(self, message):
-        await self.send({
-            "type": "websocket.accept",
-        })
-
-    async def websocket_receive(self, message):
-        await asyncio.sleep(1)
-        await self.send({
-            "type": "websocket.send",
-            "text": "pong",
         })
