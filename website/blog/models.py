@@ -9,6 +9,7 @@ from django.urls import reverse
 from autoslug import AutoSlugField
 from ckeditor_uploader.fields import RichTextUploadingField
 from djmoney.models.fields import MoneyField
+from django.template.defaultfilters import slugify
 
 
 @python_2_unicode_compatible
@@ -31,7 +32,7 @@ class Post(models.Model):
     author = models.ForeignKey("auth.User")
     title = models.CharField(max_length=200, verbose_name="Titulo")
     pompadour = models.CharField(max_length=800, null=True, blank=True, verbose_name="Resumen para portada")
-    slug = AutoSlugField(editable=True, null=True, blank=True, unique=True, populate_from="title", verbose_name="Url")
+    slug = models.CharField(max_length=250, null=True, blank=True, unique=True, verbose_name="Url")
     created_date = models.DateField(default=timezone.now)
     published_date = models.DateField(blank=True, null=True)
     tags = models.ManyToManyField(Tag, related_name="posts")
@@ -62,6 +63,9 @@ class Post(models.Model):
         return reverse("post_slug", args=[self.slug])
 
     def save(self, force_insert=False, force_update=False):
+        if not self.id:
+            self.slug = slugify(self.title)
+
         super().save(force_insert, force_update)
         try:
             ping_google()

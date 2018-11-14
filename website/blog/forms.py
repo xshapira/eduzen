@@ -43,7 +43,7 @@ class SearchForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(SearchForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_class = "navbar-form"
+        self.helper.form_class = "form-inline mt-2 mt-md-0"
         self.helper.form_tag = True
         self.helper.layout = Layout(
             AppendedText(

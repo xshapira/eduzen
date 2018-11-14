@@ -6,10 +6,9 @@
     </head>
 
     <body id="page-top" class="index">
+        {% block navbar %}
+        {% endblock %}
         <div class="container">
-
-            {% block navbar %}
-            {% endblock %}
 
             {% block content %}
             {% endblock %}
@@ -19,7 +18,7 @@
 
             {% block footer %}
             {% endblock%}
-        
+
         </div>
     </body>
 </html>
