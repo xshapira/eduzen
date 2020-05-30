@@ -129,3 +129,4 @@ website/media/
 *dump*.sql
 docker-compose.override.yml
 .pdbrc.py
+.DS_Store
