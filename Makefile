@@ -91,6 +91,9 @@ show_urls:
 
 clean-python: clean-build clean-pyc
 
+zappashell:
+	docker run -ti -e AWS_PROFILE=${AWS_PROFILE} -v "$(pwd):/var/task" -v ~/.aws/:/root/.aws  --rm lambci/lambda:build-python3.8 bash
+
 clean-build:
 	rm -fr build/
 	rm -fr dist/

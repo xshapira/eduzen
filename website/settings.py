@@ -1,12 +1,21 @@
 import os
+import logging
 from pathlib import Path
 
 import sentry_sdk
 from configurations import Configuration, values
 from easy_thumbnails.conf import Settings as thumbnail_settings
 from sentry_sdk.integrations.django import DjangoIntegration
+from boto3.session import Session
 
 BASE_DIR = Path(".").resolve(strict=True)
+AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+AWS_REGION_NAME = "us-east-1"
+
+boto3_session = Session(
+    aws_access_key_id=AWS_ACCESS_KEY_ID, aws_secret_access_key=AWS_SECRET_ACCESS_KEY, region_name=AWS_REGION_NAME
+)
 
 
 class ConstanceConfig:
@@ -291,15 +300,15 @@ class Base(ConstanceConfig, StaticMedia, Configuration):
 class Dev(Base):
     DEBUG = True
     SECRET_KEY = "s0m3r4nd0mk3yford3v!"
-    ALLOWED_HOSTS = values.ListValue(["*"])
+    ALLOWED_HOSTS = "*"
 
     EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
     EMAIL_HOST = "mailhog"  # Your Mailhog Host
     EMAIL_PORT = "1025"
 
     ANYMAIL = {
-        "MAILGUN_API_KEY": os.environ.get("MAILGUN_API_KEY"),
-        "MAILGUN_SENDER_DOMAIN": os.environ.get("MAILGUN_SENDER_DOMAIN"),
+        "MAILGUN_API_KEY": os.environ.get("DJANGO_MAILGUN_API_KEY"),
+        "MAILGUN_SENDER_DOMAIN": os.environ.get("DJANGO_MAILGUN_SENDER_DOMAIN"),
     }
 
     SHELL_PLUS_PRINT_SQL = True
@@ -319,6 +328,36 @@ class Dev(Base):
     @property
     def MIDDLEWARE(self):
         return ["debug_toolbar.middleware.DebugToolbarMiddleware"] + super().MIDDLEWARE
+
+    @property
+    def LOGGING(self):
+        return {
+            "version": 1,
+            "disable_existing_loggers": False,
+            "root": {"level": logging.INFO, "handlers": ["console"]},
+            "formatters": {
+                "simple": {"format": "%(asctime)s [%(levelname)-8s] %(message)s", "datefmt": "%Y-%m-%d %H:%M:%S"},
+                "aws": {
+                    # you can add specific format for aws here
+                    "format": "%(asctime)s [%(levelname)-8s] %(message)s",
+                    "datefmt": "%Y-%m-%d %H:%M:%S",
+                },
+            },
+            "handlers": {
+                "watchtower": {
+                    "level": "DEBUG",
+                    "class": "watchtower.CloudWatchLogHandler",
+                    "boto3_session": boto3_session,
+                    "log_group": "DjangoEduzen",
+                    "stream_name": "eduzen",
+                    "formatter": "aws",
+                },
+            },
+            "loggers": {
+                "*": {"handlers": ["console"], "level": "INFO", "propagate": True},
+                "django": {"level": "INFO", "handlers": ["watchtower"], "propagate": False},
+            },
+        }
 
 
 class LocalDev(Dev):
