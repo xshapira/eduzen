@@ -71,10 +71,13 @@ class PostListView(ListView):
     def get_queryset(self):
         queryset = super().get_queryset()
         query = self.request.GET.get("q")
-        if not query:
-            return queryset
-
-        return queryset.annotate(search=SearchVector("text", "title", "pompadour")).filter(search=query)
+        return (
+            queryset.annotate(
+                search=SearchVector("text", "title", "pompadour")
+            ).filter(search=query)
+            if query
+            else queryset
+        )
 
     def get_context_data(self, **kwargs) -> dict:
         context = super().get_context_data(**kwargs)
@@ -85,10 +88,7 @@ class PostListView(ListView):
 
     def render_to_response(self, context):
         posts = context.get("posts")
-        if not posts:
-            return redirect("search")
-
-        return super().render_to_response(context)
+        return super().render_to_response(context) if posts else redirect("search")
 
 
 @method_decorator(cache_page(HOUR), name="dispatch")

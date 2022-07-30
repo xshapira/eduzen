@@ -40,9 +40,11 @@ class PostAdmin(ImageCroppingMixin, admin.ModelAdmin):
 
     @mark_safe
     def preview(self, obj):
-        if not obj.image:
-            return ""
-        return f"<img src='{obj.image.url}' width='100' height='100'/>"
+        return (
+            f"<img src='{obj.image.url}' width='100' height='100'/>"
+            if obj.image
+            else ""
+        )
 
     def get_queryset(self, request):
         return super().get_queryset(request).prefetch_related("tags")

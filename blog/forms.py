@@ -18,15 +18,15 @@ class EmailForm(forms.Form):
     captcha = CaptchaField()
 
     def _prepare_data(self):
-        data = {}
-        data["subject"] = f"{self.data['subject']} Nuevo contacto a traves de la eduzen.com.ar"
-        data["recipient_list"] = ["eduardo.a.enriquez@gmail.com"]
-        data["message"] = self.data["message"]
-        data["html_message"] = (
-            f"<html><body><p>eduzen.com.ar<p><hr/><p>{self.data['subject']} - {self.data['from_email']}</p>"
-            f"<hr/><p>{self.data['message']}</p></body></html>"
-        )
-        data["from_email"] = settings.DEFAULT_FROM_EMAIL
+        data = {
+            "subject": f"{self.data['subject']} Nuevo contacto a traves de la eduzen.com.ar",
+            "recipient_list": ["eduardo.a.enriquez@gmail.com"],
+            "message": self.data["message"],
+            "html_message": f"<html><body><p>eduzen.com.ar<p><hr/><p>{self.data['subject']} - {self.data['from_email']}</p>"
+            f"<hr/><p>{self.data['message']}</p></body></html>",
+            "from_email": settings.DEFAULT_FROM_EMAIL,
+        }
+
         return data
 
     def send_email(self):

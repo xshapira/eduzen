@@ -61,7 +61,7 @@ class Post(models.Model):
         self.save()
 
     def published(self):
-        return True if self.published_date else False
+        return bool(self.published_date)
 
     published.boolean = True
 
