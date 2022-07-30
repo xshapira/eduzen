@@ -26,9 +26,17 @@ def urlize_tweet_text(tweet):
     user_url = '<a href="https://twitter.com/%s" target="_blank">@%s</a>'
     text = tweet.text
     for hash in tweet.hashtags:
-        text = text.replace("#%s" % hash.text, hashtag_url % (quote(hash.text.encode("utf-8")), hash.text))
+        text = text.replace(
+            f"#{hash.text}",
+            hashtag_url % (quote(hash.text.encode("utf-8")), hash.text),
+        )
+
     for mention in tweet.user_mentions:
-        text = text.replace("@%s" % mention.screen_name, user_url % (quote(mention.screen_name), mention.screen_name))
+        text = text.replace(
+            f"@{mention.screen_name}",
+            user_url % (quote(mention.screen_name), mention.screen_name),
+        )
+
     return text
 
 
